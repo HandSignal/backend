@@ -1,5 +1,6 @@
 package choijjyo.handsignal.entity;
 
+import choijjyo.handsignal.converter.JpaConverterJson;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,13 +15,16 @@ public class HandCoordinate {
     private Long id;
 
     @Lob
-    private String poseKeypoints;
+    @Convert(converter = JpaConverterJson.class)
+    private List<List<Map<String, Object>>> poseKeypoints;
 
     @Lob
-    private String leftHandKeypoints;
+    @Convert(converter = JpaConverterJson.class)
+    private List<List<Map<String, Object>>> leftHandKeypoints;
 
     @Lob
-    private String rightHandKeypoints;
+    @Convert(converter = JpaConverterJson.class)
+    private List<List<Map<String, Object>>> rightHandKeypoints;
 
     private Date timestamp = new Date();
 
