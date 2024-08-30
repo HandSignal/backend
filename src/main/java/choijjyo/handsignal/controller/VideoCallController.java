@@ -20,7 +20,7 @@ public class VideoCallController {
 
     @PostMapping("/create")
     public ResponseEntity<Map<String, String>> createRoom() {
-        ChatRoom chatRoom = videoCallService.createRoom();
+        var chatRoom = videoCallService.createRoom();
         String entryUrl = "/video-calls/room/entry/" + chatRoom.getId();
 
         Map<String, String> response = new HashMap<>();

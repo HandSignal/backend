@@ -28,8 +28,8 @@ public class VideoCallService {
         if (optionalRoom.isPresent()) {
             ChatRoom chatRoom = optionalRoom.get();
 
-            // Check if room already has 2 users
-            if (chatRoom.getEntries().size() >= 2) {
+            // 방이 꽉 찬 상태인지 확인
+            if (chatRoom.isFull()) {
                 return false;
             }
 
@@ -39,6 +39,13 @@ public class VideoCallService {
             userEntry.setChatRoom(chatRoom);
 
             userEntryRepository.save(userEntry);
+
+            // 사용자가 두 명이 되면 방을 꽉 찬 상태로 설정
+            if (chatRoom.getEntries().size() >= 2) {
+                chatRoom.setFull(true);
+                chatRoomRepository.save(chatRoom);  // 상태 업데이트
+            }
+
             return true;
         }
 

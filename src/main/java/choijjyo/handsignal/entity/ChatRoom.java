@@ -16,6 +16,8 @@ public class ChatRoom {
 
     private Instant createdAt = Instant.now();
 
+    private boolean isFull = false; // 방이 꽉 찼는지 여부를 저장
+
     @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserEntry> entries;
 }
