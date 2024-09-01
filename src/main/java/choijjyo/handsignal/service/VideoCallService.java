@@ -2,13 +2,15 @@ package choijjyo.handsignal.service;
 
 import choijjyo.handsignal.entity.ChatRoom;
 import choijjyo.handsignal.entity.UserEntry;
+import choijjyo.handsignal.exception.ErrorCode;
+import choijjyo.handsignal.exception.HandSignalException;
 import choijjyo.handsignal.repository.ChatRoomRepository;
 import choijjyo.handsignal.repository.UserEntryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,33 +24,26 @@ public class VideoCallService {
         return chatRoomRepository.save(chatRoom);
     }
 
-    public boolean enterRoom(String roomId, String userName, Instant timestamp) {
-        Optional<ChatRoom> optionalRoom = chatRoomRepository.findById(roomId);
+    @Transactional
+    public void enterRoom(String roomId, String userName, Instant timestamp) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new HandSignalException(ErrorCode.ROOM_NOT_FOUND));
 
-        if (optionalRoom.isPresent()) {
-            ChatRoom chatRoom = optionalRoom.get();
-
-            // 방이 꽉 찬 상태인지 확인
-            if (chatRoom.isFull()) {
-                return false;
-            }
-
-            UserEntry userEntry = new UserEntry();
-            userEntry.setUserName(userName);
-            userEntry.setTimestamp(timestamp);
-            userEntry.setChatRoom(chatRoom);
-
-            userEntryRepository.save(userEntry);
-
-            // 사용자가 두 명이 되면 방을 꽉 찬 상태로 설정
-            if (chatRoom.getEntries().size() >= 2) {
-                chatRoom.setFull(true);
-                chatRoomRepository.save(chatRoom);  // 상태 업데이트
-            }
-
-            return true;
+        if (chatRoom.isFull()) {
+            throw new HandSignalException(ErrorCode.ROOM_FULL);
         }
 
-        return false;
+        UserEntry userEntry = new UserEntry();
+        userEntry.setUserName(userName);
+        userEntry.setTimestamp(timestamp);
+        userEntry.setChatRoom(chatRoom);
+
+        userEntryRepository.save(userEntry);
+
+        // 방에 두 명이 되면 방을 꽉 찼다고 표시
+        if (chatRoom.getEntries().size() >= 2) {
+            chatRoom.setFull(true);
+            chatRoomRepository.save(chatRoom);  // 방 상태 업데이트
+        }
     }
 }
