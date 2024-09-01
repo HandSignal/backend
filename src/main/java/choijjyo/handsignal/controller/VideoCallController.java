@@ -1,14 +1,14 @@
 package choijjyo.handsignal.controller;
 
-import choijjyo.handsignal.entity.ChatRoom;
+import choijjyo.handsignal.common.dto.NormalResponseDto;
+import choijjyo.handsignal.exception.HandSignalException;
+import choijjyo.handsignal.response.RoomResponseDto;
 import choijjyo.handsignal.service.VideoCallService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -19,19 +19,17 @@ public class VideoCallController {
     private final VideoCallService videoCallService;
 
     @PostMapping("/create")
-    public ResponseEntity<Map<String, String>> createRoom() {
+    public ResponseEntity<RoomResponseDto> createRoom() {
         var chatRoom = videoCallService.createRoom();
         String entryUrl = "/video-calls/room/entry/" + chatRoom.getId();
 
-        Map<String, String> response = new HashMap<>();
-        response.put("roomId", chatRoom.getId());
-        response.put("entryUrl", entryUrl);
+        RoomResponseDto response = new RoomResponseDto(chatRoom.getId(), entryUrl);
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/entry/{roomId}")
-    public ResponseEntity<Map<String, Object>> enterRoom(
+    public ResponseEntity<NormalResponseDto> enterRoom(
             @PathVariable String roomId,
             @RequestParam(required = false) String name) {
 
@@ -40,17 +38,14 @@ public class VideoCallController {
         }
 
         Instant timestamp = Instant.now();
-        boolean success = videoCallService.enterRoom(roomId, name, timestamp);
 
-        if (!success) {
-            return ResponseEntity.status(403).body(Map.of("error", "Room is full or does not exist"));
+        try {
+            videoCallService.enterRoom(roomId, name, timestamp);
+            return ResponseEntity.ok(NormalResponseDto.success());
+        } catch (HandSignalException e) {
+            NormalResponseDto errorResponse = NormalResponseDto.fail();
+            errorResponse.setMessage(e.getMessage());
+            return ResponseEntity.status(e.getStatus()).body(errorResponse);
         }
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("roomId", roomId);
-        response.put("userName", name);
-        response.put("timestamp", timestamp.toString());
-
-        return ResponseEntity.ok(response);
     }
 }
