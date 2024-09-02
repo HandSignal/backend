@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://${RDS_ENDPOINT}:3306/handSignal
+    url: jdbc:mysql://${RDS_ENDPOINT}:3306/${DB_NAME}
     username: ${RDS_DB_ID}
     password: ${RDS_DB_PW}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -33,3 +33,6 @@ aws:
 flask:
   api:
     url: ${FLASK_API_URL}
+
+server:
+  port: 8080
