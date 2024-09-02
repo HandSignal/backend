@@ -5,10 +5,7 @@ import choijjyo.handsignal.repository.FileRecordRepository;
 import choijjyo.handsignal.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -49,12 +46,19 @@ public class FileController {
 
             // Flask API 호출
             String fileName = file.getOriginalFilename();
+            String apiUrl = flaskApiUrl + "/predict";
+
+            RestTemplate restTemplate = new RestTemplate();
+
             HttpHeaders headers = new HttpHeaders();
             headers.set("Content-Type", "application/json");
-            HttpEntity<String> requestEntity = new HttpEntity<>("{\"file_url\":\"" + fileUrl + "\"}", headers);
-            ResponseEntity<String> response = restTemplate.exchange(flaskApiUrl + "/predict", HttpMethod.POST, requestEntity, String.class);
+            String jsonBody = String.format("{\"s3url\": \"%s\"}", fileUrl.replace("\"", "\\\""));
+            HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
 
-            return "File uploaded successfully: " + file.getOriginalFilename() + " - Flask Response: " + response.getBody();
+            String result = restTemplate.postForObject(apiUrl, requestEntity, String.class);
+
+
+            return "File uploaded successfully: " + fileName + "\nmodel result: " + result;
         } catch (IOException e) {
             e.printStackTrace();
             return "Failed to upload file: " + e.getMessage();
