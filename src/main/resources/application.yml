@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/handSignal
-    username: ${LOCAL_DB_ID}
-    password: ${LOCAL_DB_PW}
+    url: jdbc:mysql://${RDS_ENDPOINT}:3306/handSignal
+    username: ${RDS_DB_ID}
+    password: ${RDS_DB_PW}
     driver-class-name: com.mysql.cj.jdbc.Driver
   sql:
     init:
