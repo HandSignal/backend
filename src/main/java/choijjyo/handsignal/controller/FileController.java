@@ -15,6 +15,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/files")
 @RequiredArgsConstructor
