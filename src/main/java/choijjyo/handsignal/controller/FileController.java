@@ -3,6 +3,9 @@ package choijjyo.handsignal.controller;
 import choijjyo.handsignal.entity.FileRecord;
 import choijjyo.handsignal.repository.FileRecordRepository;
 import choijjyo.handsignal.service.S3Service;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -28,7 +31,12 @@ public class FileController {
     @Value("${flask.api.url}") // Flask API URL 설정
     private String flaskApiUrl;
 
-    @PostMapping("/upload")
+    @Operation(summary = "파일을 S3에 업로드하고 Flask API 호출")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "파일 업로드 성공"),
+            @ApiResponse(responseCode = "500", description = "파일 업로드 실패")
+    })
+    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String uploadFile(@RequestParam("data") MultipartFile file) {
         try {
             // 파일을 S3에 업로드
