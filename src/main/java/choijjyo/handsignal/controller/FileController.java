@@ -21,7 +21,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @RestController
-@RequestMapping("/files")
+@RequestMapping("/hand-coordinate")
 @RequiredArgsConstructor
 public class FileController {
 
@@ -32,12 +32,12 @@ public class FileController {
     @Value("${flask.api.url}") // Flask API URL 설정
     private String flaskApiUrl;
 
-    @Operation(summary = "파일을 S3에 업로드하고 Flask API 호출")
+    @Operation(summary = "JSON 파일을 S3에 업로드하고, Flask 예측 모델을 호출하여 손 좌표를 예측합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "파일 업로드 성공"),
             @ApiResponse(responseCode = "500", description = "파일 업로드 실패")
     })
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/predict", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<NormalResponseDto> uploadFile(@RequestParam("data") MultipartFile file) {
         try {
             // 파일을 S3에 업로드
@@ -69,8 +69,7 @@ public class FileController {
 
             NormalResponseDto response = NormalResponseDto.success();
             response.setMessage("File uploaded successfully");
-            response.setFileUrl(fileUrl);
-            response.setModelResult(result.replace("\"", ""));  // 결과에서 불필요한 따옴표 제거
+            response.setFileModelResult(fileName, fileUrl, result.replace("\"", ""));
             return ResponseEntity.ok(response);
 
         } catch (HandSignalException e) {
