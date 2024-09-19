@@ -1,6 +1,6 @@
-package choijjyo.handsignal.repository;
+package choijjyo.handsignal.videoCall.repository;
 
-import choijjyo.handsignal.entity.UserEntry;
+import choijjyo.handsignal.videoCall.entity.UserEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface UserEntryRepository extends JpaRepository<UserEntry, Long> {

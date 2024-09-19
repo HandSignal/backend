@@ -1,4 +1,4 @@
-package choijjyo.handsignal.entity;
+package choijjyo.handsignal.translation.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Entity
 @Data
-public class FileRecord {
+public class TranslationFileRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

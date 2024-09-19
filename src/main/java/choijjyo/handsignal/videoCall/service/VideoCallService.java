@@ -1,11 +1,11 @@
-package choijjyo.handsignal.service;
+package choijjyo.handsignal.videoCall.service;
 
-import choijjyo.handsignal.entity.ChatRoom;
-import choijjyo.handsignal.entity.UserEntry;
+import choijjyo.handsignal.videoCall.entity.ChatRoom;
+import choijjyo.handsignal.videoCall.entity.UserEntry;
 import choijjyo.handsignal.exception.ErrorCode;
 import choijjyo.handsignal.exception.HandSignalException;
-import choijjyo.handsignal.repository.ChatRoomRepository;
-import choijjyo.handsignal.repository.UserEntryRepository;
+import choijjyo.handsignal.videoCall.repository.ChatRoomRepository;
+import choijjyo.handsignal.videoCall.repository.UserEntryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

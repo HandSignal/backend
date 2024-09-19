@@ -1,4 +1,4 @@
-package choijjyo.handsignal.service;
+package choijjyo.handsignal.translation.service;
 
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -11,14 +11,14 @@ import java.io.IOException;
 import java.io.InputStream;
 
 @Service
-public class S3Service {
+public class TranslationService {
 
     private final S3Client s3Client;
 
     @Value("${aws.s3.bucket-name}")
     private String bucketName;
 
-    public S3Service(S3Client s3Client) {
+    public TranslationService(S3Client s3Client) {
         this.s3Client = s3Client;
     }
 

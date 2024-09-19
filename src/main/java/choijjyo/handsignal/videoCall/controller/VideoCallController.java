@@ -1,9 +1,9 @@
-package choijjyo.handsignal.controller;
+package choijjyo.handsignal.videoCall.controller;
 
 import choijjyo.handsignal.common.dto.NormalResponseDto;
 import choijjyo.handsignal.exception.HandSignalException;
-import choijjyo.handsignal.response.RoomResponseDto;
-import choijjyo.handsignal.service.VideoCallService;
+import choijjyo.handsignal.videoCall.response.RoomResponseDto;
+import choijjyo.handsignal.videoCall.service.VideoCallService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

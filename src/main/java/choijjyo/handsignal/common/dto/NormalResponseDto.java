@@ -1,6 +1,6 @@
 package choijjyo.handsignal.common.dto;
 
-import choijjyo.handsignal.entity.FileModelResponseDto;
+import choijjyo.handsignal.translation.response.TranslationFileModelResponseDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,7 +11,7 @@ import lombok.Setter;
 public class NormalResponseDto {
     private String status;
     private String message;
-    private FileModelResponseDto file;
+    private TranslationFileModelResponseDto file;
 
     protected NormalResponseDto(String status) {
         this.status = status;
@@ -30,6 +30,6 @@ public class NormalResponseDto {
     }
 
     public void setFileModelResult(String fileName, String fileUrl, String modelResult) {  // 새로운 세터
-        this.file = new FileModelResponseDto(fileName, fileUrl, modelResult);
+        this.file = new TranslationFileModelResponseDto(fileName, fileUrl, modelResult);
     }
 }
