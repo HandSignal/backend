@@ -1,6 +1,8 @@
 package choijjyo.handsignal.controller;
 
+import choijjyo.handsignal.common.dto.NormalResponseDto;
 import choijjyo.handsignal.entity.FileRecord;
+import choijjyo.handsignal.exception.HandSignalException;
 import choijjyo.handsignal.repository.FileRecordRepository;
 import choijjyo.handsignal.service.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +20,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-@CrossOrigin
 @RestController
 @RequestMapping("/files")
 @RequiredArgsConstructor
@@ -37,7 +38,7 @@ public class FileController {
             @ApiResponse(responseCode = "500", description = "파일 업로드 실패")
     })
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public String uploadFile(@RequestParam("data") MultipartFile file) {
+    public ResponseEntity<NormalResponseDto> uploadFile(@RequestParam("data") MultipartFile file) {
         try {
             // 파일을 S3에 업로드
             String fileUrl = s3Service.uploadFile(file);
@@ -66,11 +67,21 @@ public class FileController {
 
             String result = restTemplate.postForObject(apiUrl, requestEntity, String.class);
 
+            NormalResponseDto response = NormalResponseDto.success();
+            response.setMessage("File uploaded successfully");
+            response.setFileUrl(fileUrl);
+            response.setModelResult(result.replace("\"", ""));  // 결과에서 불필요한 따옴표 제거
+            return ResponseEntity.ok(response);
 
-            return "File uploaded successfully: " + fileName + "\nmodel result: " + result;
+        } catch (HandSignalException e) {
+            NormalResponseDto errorResponse = NormalResponseDto.fail();
+            errorResponse.setMessage(e.getMessage());
+            return ResponseEntity.status(e.getStatus()).body(errorResponse);
+
         } catch (IOException e) {
-            e.printStackTrace();
-            return "Failed to upload file: " + e.getMessage();
+            NormalResponseDto errorResponse = NormalResponseDto.fail();
+            errorResponse.setMessage("Failed to upload file: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 }
