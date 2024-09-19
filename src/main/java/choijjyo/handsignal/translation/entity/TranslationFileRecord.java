@@ -18,4 +18,5 @@ public class TranslationFileRecord {
     private String fileUrl;
     private Long fileSize;
     private String uploadedAt;
+    private String modelResult;
 }
