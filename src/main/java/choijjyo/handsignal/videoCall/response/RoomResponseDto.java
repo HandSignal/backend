@@ -1,4 +1,4 @@
-package choijjyo.handsignal.response;
+package choijjyo.handsignal.videoCall.response;
 
 import lombok.Getter;
 import lombok.Setter;

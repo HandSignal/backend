@@ -1,10 +1,10 @@
-package choijjyo.handsignal.controller;
+package choijjyo.handsignal.translation.controller;
 
 import choijjyo.handsignal.common.dto.NormalResponseDto;
-import choijjyo.handsignal.entity.FileRecord;
+import choijjyo.handsignal.translation.entity.TranslationFileRecord;
 import choijjyo.handsignal.exception.HandSignalException;
-import choijjyo.handsignal.repository.FileRecordRepository;
-import choijjyo.handsignal.service.S3Service;
+import choijjyo.handsignal.translation.repository.TranslationFileRecordRepository;
+import choijjyo.handsignal.translation.service.TranslationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -23,10 +23,10 @@ import java.time.format.DateTimeFormatter;
 @RestController
 @RequestMapping("/translate")
 @RequiredArgsConstructor
-public class FileController {
+public class TranslationController {
 
-    private final S3Service s3Service;
-    private final FileRecordRepository fileRecordRepository;
+    private final TranslationService translationService;
+    private final TranslationFileRecordRepository translationFileRecordRepository;
     private final RestTemplate restTemplate; // 추가된 부분
 
     @Value("${flask.api.url}") // Flask API URL 설정
@@ -41,18 +41,18 @@ public class FileController {
     public ResponseEntity<NormalResponseDto> uploadFile(@RequestParam("data") MultipartFile file) {
         try {
             // 파일을 S3에 업로드
-            String fileUrl = s3Service.uploadFile(file);
+            String fileUrl = translationService.uploadFile(file);
 
             // 파일 정보를 데이터베이스에 저장
-            FileRecord fileRecord = new FileRecord();
-            fileRecord.setFileName(file.getOriginalFilename());
-            fileRecord.setFileUrl(fileUrl);
-            fileRecord.setFileSize(file.getSize());
-            fileRecord.setUploadedAt(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            TranslationFileRecord translationFileRecord = new TranslationFileRecord();
+            translationFileRecord.setFileName(file.getOriginalFilename());
+            translationFileRecord.setFileUrl(fileUrl);
+            translationFileRecord.setFileSize(file.getSize());
+            translationFileRecord.setUploadedAt(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                     .withZone(ZoneId.systemDefault())
                     .format(Instant.now()));
 
-            fileRecordRepository.save(fileRecord);
+            translationFileRecordRepository.save(translationFileRecord);
 
             // Flask API 호출
             String fileName = file.getOriginalFilename();

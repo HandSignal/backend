@@ -1,4 +1,4 @@
-package choijjyo.handsignal.entity;
+package choijjyo.handsignal.videoCall.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
