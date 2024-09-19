@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/translate")
@@ -36,13 +37,13 @@ public class TranslationController {
 
     @Operation(
             summary = "JSON 파일을 S3에 업로드하고, Flask 예측 모델을 호출하여 손 좌표를 예측합니다.",
-            description = "업로드된 파일은 다음과 같은 구조의 JSON 형식이어야 합니다:\n" +
-                    "{\n" +
-                    "  \"pose_keypoint\": [ /* List of pose keypoints */ ],\n" +
-                    "  \"left_hand_keypoint\": [ /* List of left hand keypoints */ ],\n" +
-                    "  \"right_hand_keypoint\": [ /* List of right hand keypoints */ ]\n" +
-                    "}\n" +
-                    "각 키포인트에는 'x', 'y', 'z', 'visibility' 필드가 있어야 합니다."
+            description = "업로드된 파일은 다음과 같은 구조의 JSON 형식이어야 합니다:\n\n" +
+                    "{\n\n" +
+                    "\t\"pose_keypoint\": [ /* List of pose keypoints */ ],\n\n" +
+                    "\t\"left_hand_keypoint\": [ /* List of left hand keypoints */ ],\n\n" +
+                    "\t\"right_hand_keypoint\": [ /* List of right hand keypoints */ ]\n\n" +
+                    "}\n\n" +
+                    "각 키값에는 'x', 'y', 'z', 'visibility' 필드가 있어야 합니다."
     )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "파일 업로드 성공"),
@@ -93,5 +94,36 @@ public class TranslationController {
             errorResponse.setMessage("Failed to upload file: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
+    }
+
+    @Operation(
+            summary = "ID별 업로드 파일 기록 조회",
+            description = "제공된 ID를 기준으로 데이터베이스에서 파일 기록을 가져옵니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "파일 기록 조회 성공"),
+                    @ApiResponse(responseCode = "404", description = "파일 기록 조회 실패")
+            }
+    )
+    @GetMapping("/file-record/{id}")
+    public ResponseEntity<TranslationFileRecord> getFileRecordById(@PathVariable Long id) {
+        Optional<TranslationFileRecord> fileRecordOptional = translationFileRecordRepository.findById(id);
+        if (fileRecordOptional.isPresent()) {
+            return ResponseEntity.ok(fileRecordOptional.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @Operation(
+            summary = "모든 업로드 파일 기록 조회",
+            description = "데이터베이스에서 모든 파일 기록을 가져옵니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "전체 파일 기록 조회 성공")
+            }
+    )
+    @GetMapping("/file-records")
+    public ResponseEntity<Iterable<TranslationFileRecord>> getAllFileRecords() {
+        Iterable<TranslationFileRecord> fileRecords = translationFileRecordRepository.findAll();
+        return ResponseEntity.ok(fileRecords);
     }
 }
