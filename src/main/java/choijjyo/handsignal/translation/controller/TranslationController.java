@@ -36,7 +36,7 @@ public class TranslationController {
     private String flaskApiUrl;
 
     @Operation(
-            summary = "JSON 파일을 S3에 업로드하고, Flask 예측 모델을 호출하여 손 좌표를 예측합니다.",
+            summary = "JSON 파일을 S3에 업로드하고, Flask 예측 모델을 호출하여 수화를 번역",
             description = "업로드된 파일은 다음과 같은 구조의 JSON 형식이어야 합니다:\n\n" +
                     "{\n\n" +
                     "\t\"pose_keypoint\": [ /* List of pose keypoints */ ],\n\n" +
@@ -55,6 +55,15 @@ public class TranslationController {
             // 파일을 S3에 업로드
             String fileUrl = translationService.uploadFile(file);
 
+            // Flask API 호출
+            String apiUrl = flaskApiUrl + "/predict";
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Content-Type", "application/json");
+            String jsonBody = String.format("{\"s3url\": \"%s\"}", fileUrl.replace("\"", "\\\""));
+            HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
+
+            String result = restTemplate.postForObject(apiUrl, requestEntity, String.class);
+
             // 파일 정보를 데이터베이스에 저장
             TranslationFileRecord translationFileRecord = new TranslationFileRecord();
             translationFileRecord.setFileName(file.getOriginalFilename());
@@ -63,25 +72,13 @@ public class TranslationController {
             translationFileRecord.setUploadedAt(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
                     .withZone(ZoneId.systemDefault())
                     .format(Instant.now()));
+            translationFileRecord.setModelResult(result.replace("\"", "")); // 결과 저장
 
             translationFileRecordRepository.save(translationFileRecord);
 
-            // Flask API 호출
-            String fileName = file.getOriginalFilename();
-            String apiUrl = flaskApiUrl + "/predict";
-
-            RestTemplate restTemplate = new RestTemplate();
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Content-Type", "application/json");
-            String jsonBody = String.format("{\"s3url\": \"%s\"}", fileUrl.replace("\"", "\\\""));
-            HttpEntity<String> requestEntity = new HttpEntity<>(jsonBody, headers);
-
-            String result = restTemplate.postForObject(apiUrl, requestEntity, String.class);
-
             NormalResponseDto response = NormalResponseDto.success();
             response.setMessage("File uploaded successfully");
-            response.setFileModelResult(fileName, fileUrl, result.replace("\"", ""));
+            response.setFileModelResult(file.getOriginalFilename(), fileUrl, result.replace("\"", ""));
             return ResponseEntity.ok(response);
 
         } catch (HandSignalException e) {
