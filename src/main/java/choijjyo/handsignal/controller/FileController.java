@@ -21,7 +21,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @RestController
-@RequestMapping("/hand-coordinate")
+@RequestMapping("/translate")
 @RequiredArgsConstructor
 public class FileController {
 
@@ -37,7 +37,7 @@ public class FileController {
             @ApiResponse(responseCode = "200", description = "파일 업로드 성공"),
             @ApiResponse(responseCode = "500", description = "파일 업로드 실패")
     })
-    @PostMapping(value = "/predict", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/sign-language", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<NormalResponseDto> uploadFile(@RequestParam("data") MultipartFile file) {
         try {
             // 파일을 S3에 업로드
