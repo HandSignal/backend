@@ -8,6 +8,7 @@ import choijjyo.handsignal.translation.service.TranslationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -23,6 +24,7 @@ import java.time.format.DateTimeFormatter;
 @RestController
 @RequestMapping("/translate")
 @RequiredArgsConstructor
+@Tag(name = "Translation", description = "수화를 텍스트로 번역하고 관련 파일 작업을 처리")
 public class TranslationController {
 
     private final TranslationService translationService;
@@ -32,7 +34,16 @@ public class TranslationController {
     @Value("${flask.api.url}") // Flask API URL 설정
     private String flaskApiUrl;
 
-    @Operation(summary = "JSON 파일을 S3에 업로드하고, Flask 예측 모델을 호출하여 손 좌표를 예측합니다.")
+    @Operation(
+            summary = "JSON 파일을 S3에 업로드하고, Flask 예측 모델을 호출하여 손 좌표를 예측합니다.",
+            description = "업로드된 파일은 다음과 같은 구조의 JSON 형식이어야 합니다:\n" +
+                    "{\n" +
+                    "  \"pose_keypoint\": [ /* List of pose keypoints */ ],\n" +
+                    "  \"left_hand_keypoint\": [ /* List of left hand keypoints */ ],\n" +
+                    "  \"right_hand_keypoint\": [ /* List of right hand keypoints */ ]\n" +
+                    "}\n" +
+                    "각 키포인트에는 'x', 'y', 'z', 'visibility' 필드가 있어야 합니다."
+    )
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "파일 업로드 성공"),
             @ApiResponse(responseCode = "500", description = "파일 업로드 실패")
