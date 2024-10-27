@@ -29,7 +29,7 @@ public class NormalResponseDto {
         this.message = message;
     }
 
-    public void setFileModelResult(String fileName, String fileUrl, String modelResult) {  // 새로운 세터
+    public void setFileModelResult(String fileName, String fileUrl, String modelResult) {
         this.file = new TranslationFileModelResponseDto(fileName, fileUrl, modelResult);
     }
 }

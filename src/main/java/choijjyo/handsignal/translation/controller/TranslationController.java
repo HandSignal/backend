@@ -30,9 +30,9 @@ public class TranslationController {
 
     private final TranslationService translationService;
     private final TranslationFileRecordRepository translationFileRecordRepository;
-    private final RestTemplate restTemplate; // 추가된 부분
+    private final RestTemplate restTemplate;
 
-    @Value("${flask.api.url}") // Flask API URL 설정
+    @Value("${flask.api.url}")
     private String flaskApiUrl;
 
     @Operation(
